@@ -8,6 +8,7 @@ services:
     expose:
       - 5000
     labels:
+      - traefik.port=5000
       - traefik.enable=true
       - traefik.frontend.rule=Host:api.YOUR_DOMAIN.com
 
