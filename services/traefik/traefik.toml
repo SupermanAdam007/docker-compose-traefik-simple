@@ -1,0 +1,46 @@
+logLevel = "INFO"
+defaultEntryPoints = ["http", "https"]
+
+[accessLog]
+  filePath = "/var/log/traefik/access.log"
+  format = "json"
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+  [entryPoints.traefik]
+  address = ":8080"
+    [entryPoints.traefik.auth]
+      [entryPoints.traefik.auth.basic]
+        users = ["adslgfjlaf:$2y$05$Pi.U0Wn8BwfL3qUJRClCwu93FyZb20XoQQKBaORL7koB8rfWPWYeW"] # 132651465846413faasfasf
+
+[api]
+entryPoint = "traefik"
+dashboard = true
+
+[acme]
+email = "YOUR_MAIL"
+storage = "/etc/traefik/acme/acme.json"
+entryPoint = "https"
+acmeLogging = true
+
+# testing caServer, if commented be careful, with many unsucesfull requests
+# letsencrypt will ban you for an hour or something
+caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+onDemand = false
+OnHostRule = true
+  [acme.httpChallenge]
+  entryPoint = "http"
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+watch = true
+exposedbydefault = false

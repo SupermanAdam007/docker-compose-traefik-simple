@@ -1,0 +1,43 @@
+version: '3.5'
+services:
+
+  api:
+    # container_name: api -- comment to be able to scale the service
+    build: ./services/api # OR image: <private_repo> etc.
+    restart: always
+    expose:
+      - 5000
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:api.YOUR_DOMAIN.com
+
+  # The reverse proxy service (Traefik)
+  proxy:
+    container_name: "proxy"
+    restart: "always"
+    image: traefik  # The official Traefik docker image
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    network_mode: "host"
+    expose:
+      - 8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # So that Traefik can listen to the Docker events
+      - ./traefik/conf/traefik.toml:/etc/traefik/traefik.toml
+      - proxy_acme:/etc/traefik/acme
+      - proxy_access_logs:/var/log/traefik
+    labels:
+      - traefik.port=8080
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:proxy.YOUR_DOMAIN.com
+
+volumes:
+  proxy_access_logs:
+  proxy_acme:
